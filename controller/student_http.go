@@ -1,44 +1,41 @@
 package controller
 
 import (
-	"encoding/json"
-	"fmt"
 	"net/http"
 
+	"github.com/google/uuid"
 	"github.com/gorilla/mux"
+	"github.com/maestre3d/dynamodb-tx-outbox/application/appservice"
+	"github.com/maestre3d/dynamodb-tx-outbox/infrastructure/persistence"
 )
 
-type StudentHttp struct {
-	// add deps here
+func init() {
+	appservice.StudentRepository = persistence.NewStudentInMemory()
 }
 
-func NewStudentHttp() *StudentHttp {
-	return &StudentHttp{}
+func MapStudentHttpRoutes(r *mux.Router) {
+	r.Path("/schools/{school_id}/students").Methods(http.MethodPost).HandlerFunc(createStudent)
+	r.Path("/schools/{school_id}/students/{student_id}").Methods(http.MethodGet).HandlerFunc(getStudent)
 }
 
-var _ Http = StudentHttp{}
-
-func (s StudentHttp) MapRoutes(r *mux.Router) {
-	r.Path("/schools/{school_id}/students").Methods(http.MethodPost).HandlerFunc(s.create)
-	r.Path("/schools/{school_id}/students/{student_id}").Methods(http.MethodGet).HandlerFunc(s.get)
+func createStudent(w http.ResponseWriter, r *http.Request) {
+	studentID := uuid.NewString()
+	if err := appservice.RegisterStudent(r.Context(), appservice.RegisterStudentArgs{
+		StudentID: studentID,
+		Name:      r.PostFormValue("student_name"),
+		SchoolID:  mux.Vars(r)["school_id"],
+	}); err != nil {
+		respondMessageJSON(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	respondMessageJSON(w, studentID, 200)
 }
 
-func (s StudentHttp) create(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-	_ = json.NewEncoder(w).Encode(struct {
-		Message string `json:"message"`
-	}{
-		Message: fmt.Sprintf("Hello mister from POST (school: %s)",
-			mux.Vars(r)["school_id"]),
-	})
-}
-
-func (s StudentHttp) get(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-	_ = json.NewEncoder(w).Encode(struct {
-		Message string `json:"message"`
-	}{
-		Message: fmt.Sprintf("Hello mister from GET (school: %s, student: %s)",
-			mux.Vars(r)["school_id"], mux.Vars(r)["student_id"]),
-	})
+func getStudent(w http.ResponseWriter, r *http.Request) {
+	student, err := appservice.GetStudentByID(r.Context(), mux.Vars(r)["school_id"], mux.Vars(r)["student_id"])
+	if err != nil {
+		respondMessageJSON(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	respondStructJSON(w, *student, 200)
 }

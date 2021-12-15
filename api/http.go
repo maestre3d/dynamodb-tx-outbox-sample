@@ -17,6 +17,5 @@ func NewHttpApi() *http.Server {
 }
 
 func mapRoutes(r *mux.Router) {
-	ctrl := controller.NewStudentHttp()
-	ctrl.MapRoutes(r)
+	controller.MapStudentHttpRoutes(r)
 }
