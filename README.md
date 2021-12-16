@@ -132,8 +132,7 @@ even deltas to distinct the order of the processes. Getting deeper:
    1. The middleware checks if the process was already processed.
       1. If already processed, stop the process and acknowledge the message.
 3. A middleware `disorder` is called before the actual message process.
-   1. The middleware verifies if the previous process was already processed using the `correlation_id` and 
-   `timestamp/delta` properties.
+   1. The middleware verifies if the previous process was already executed using the `causation_id` property.
       1. If not, return an error and do not acknowledge the message, so it can be retried again after a backoff.
       2. If previous process was already executed, continue with the message processing normally.
 4. The message process gets executed.
