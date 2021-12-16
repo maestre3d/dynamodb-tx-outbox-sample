@@ -30,6 +30,7 @@ All keys MUST be **String**.
 Finally, enable **Time-To-Live** and **Streams** on the `outbox` table. 
 
 ![arch](https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/images/StreamsAndTriggers.png)
+
 _Overall architecture, took from [this AWS article](https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/Streams.Lambda.Tutorial.html)_
 
 The workflow is also very simple and so is straightforward.
