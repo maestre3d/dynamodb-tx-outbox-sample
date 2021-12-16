@@ -22,7 +22,7 @@ the other called `outbox`.
 The `students` table MUST have a property named `student_id` as _Partition Key_ and another property
 named `school_id` as _Sort Key_.
 
-The `outbox` table MUST have a property named `batch_id` as _Partition Key_ and another property
+The `outbox` table MUST have a property named `transaction_id` as _Partition Key_ and another property
 named `occurred_at` as _Sort Key_.
 
 All keys MUST be **String**.

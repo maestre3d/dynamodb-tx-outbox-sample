@@ -37,13 +37,13 @@ resource "aws_dynamodb_table" "students" {
 
 resource "aws_dynamodb_table" "outbox" {
   name     = "outbox"
-  hash_key = "message_id"
+  hash_key = "transaction_id"
   range_key = "occurred_at"
   read_capacity = 5
   write_capacity = 5
 
   attribute {
-    name = "message_id"
+    name = "transaction_id"
     type = "S"
   }
 

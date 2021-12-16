@@ -19,10 +19,10 @@ func MarshalOutboxDynamoDb(ag aggregate.Root) map[string]types.AttributeValue {
 		return nil
 	}
 	return map[string]types.AttributeValue{
-		"message_id": &types.AttributeValueMemberS{
+		"transaction_id": &types.AttributeValueMemberS{
 			Value: uuid.NewString(),
 		},
-		"message": &types.AttributeValueMemberB{
+		"message_body": &types.AttributeValueMemberB{
 			Value: eventsJSON,
 		},
 		"occurred_at": &types.AttributeValueMemberS{
