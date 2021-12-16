@@ -1,6 +1,10 @@
 package aggregate
 
-import "github.com/maestre3d/dynamodb-tx-outbox/domain/event"
+import (
+	"time"
+
+	"github.com/maestre3d/dynamodb-tx-outbox/domain/event"
+)
 
 type Student struct {
 	*root
@@ -18,9 +22,10 @@ func NewStudent(id, name, schoolID string) *Student {
 		SchoolID:  schoolID,
 	}
 	s.pushDomainEvents(event.StudentRegistered{
-		StudentID: s.StudentID,
-		Name:      s.Name,
-		SchoolID:  s.SchoolID,
+		StudentID:    s.StudentID,
+		Name:         s.Name,
+		SchoolID:     s.SchoolID,
+		RegisteredAt: time.Now().UTC().Format(time.RFC3339),
 	})
 	return s
 }

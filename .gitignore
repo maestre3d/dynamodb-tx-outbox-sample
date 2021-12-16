@@ -14,8 +14,15 @@
 # Dependency directories (remove the comment below to include it)
 # vendor/
 
+# IDE
 .idea
+
+# Terraform
 .terraform
 .terraform.lock.hcl
 *.tfstate
 *.tfstate.backup
+
+# Artifacts
+*.zip
+main
