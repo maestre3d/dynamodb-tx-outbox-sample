@@ -1,5 +1,5 @@
 # Transactional Outbox Pattern in Amazon DynamoDB
-A demonstration of the transactional outbox messaging pattern (+ trailing log) with Amazon DynamoDB (+ Streams) written in Go.
+A demonstration of the transactional outbox messaging pattern (+ Log Trailing) with Amazon DynamoDB (+ Streams) written in Go.
 
 For more information about transaction outbox pattern, please read [this article](https://microservices.io/patterns/data/transactional-outbox.html).
 
@@ -9,6 +9,8 @@ For more information about log trailing pattern, please read [this article](http
 - 2 tables in Amazon DynamoDB (+ table stream).
 - 1 serverless function in Amazon Lambda.
 - 1 topic in Amazon Simple Notification Service (SNS).
+
+_Note: Live infrastructure is ready to deploy using the Terraform application from_ `deployments/aws`.
 
 The architecture is very simple as it relies on serverless patterns and services provided by Amazon Web Services.
 Most of the heavy lifting is done by Amazon itself. Nevertheless, please consider factors such as 
