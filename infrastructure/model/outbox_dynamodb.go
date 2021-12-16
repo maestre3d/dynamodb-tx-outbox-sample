@@ -46,7 +46,7 @@ func MarshalOutboxDynamoDb(ag aggregate.Root) map[string]types.AttributeValue {
 		"occurred_at": &types.AttributeValueMemberS{
 			Value: time.Now().UTC().Format(time.RFC3339),
 		},
-		"time_to_exist": &types.AttributeValueMemberS{
+		"time_to_exist": &types.AttributeValueMemberN{
 			Value: strconv.Itoa(int(time.Now().Add(time.Minute * 60).Unix())),
 		},
 	}
