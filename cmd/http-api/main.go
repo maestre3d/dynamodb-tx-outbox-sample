@@ -2,11 +2,12 @@ package main
 
 import (
 	"context"
-	"github.com/maestre3d/dynamodb-tx-outbox/api"
 	"log"
 	"os"
 	"os/signal"
 	"time"
+
+	"github.com/maestre3d/dynamodb-tx-outbox/api"
 )
 
 const gracefulShutdownDuration = time.Second * 10

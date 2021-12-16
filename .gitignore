@@ -15,3 +15,6 @@
 # vendor/
 
 .idea
+.terraform
+.terraform.lock.hcl
+*.tfstate

@@ -1,8 +1,11 @@
 package controller
 
 import (
+	"context"
 	"net/http"
 
+	"github.com/aws/aws-sdk-go-v2/config"
+	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
 	"github.com/google/uuid"
 	"github.com/gorilla/mux"
 	"github.com/maestre3d/dynamodb-tx-outbox/application/appservice"
@@ -10,7 +13,8 @@ import (
 )
 
 func init() {
-	appservice.StudentRepository = persistence.NewStudentInMemory()
+	cfg, _ := config.LoadDefaultConfig(context.TODO())
+	appservice.StudentRepository = persistence.NewStudentDynamoDb(dynamodb.NewFromConfig(cfg))
 }
 
 func MapStudentHttpRoutes(r *mux.Router) {
@@ -36,6 +40,9 @@ func getStudent(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		respondMessageJSON(w, err.Error(), http.StatusInternalServerError)
 		return
+	} else if student == nil {
+		respondMessageJSON(w, "student not found", http.StatusNotFound)
+		return
 	}
-	respondStructJSON(w, *student, 200)
+	respondStructJSON(w, student, 200)
 }
