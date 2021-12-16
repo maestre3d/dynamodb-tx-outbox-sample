@@ -125,6 +125,8 @@ In the other hand, if disordered processing is a serious problem for the busines
 of the previous described approach for duplication of processes adhering workarounds such as the usage of timestamps or 
 even deltas to distinct the order of the processes. Getting deeper:
 
+![Correlation and Causation IDs](https://blog-arkency.imgix.net/correlation_id_causation_id_rails_ruby_event/CorrelationAndCausationEventsCommands.png?w=768&h=758&fit=max)
+
 1. Message arrives.
 2. A middleware `duplication` is called before the actual message process.
    1. The middleware checks if the process was already processed.
