@@ -58,7 +58,7 @@ The workflow is also very simple and so is straightforward.
 
 Using the Time-To-Live (TTL) mechanism, batches of messages stored in the `outbox` table will get removed after
 a specific time defined by the developer _(for this example, default is 1 day)_. If Amazon DynamoDB is not an option,
-a TTL mechanism MUST be implemented manually to keep the `outbox` table small.
+a TTL mechanism MUST be implemented manually to keep the `outbox` table lightweight.
 
 Furthermore, the defined time for a record to be removed opens the possibility to replay batches of messages generated within transactions.
 
@@ -67,7 +67,7 @@ Furthermore, the defined time for a record to be removed opens the possibility t
 #### Dealing with duplication and disordered messages when replicating data
 
 As the majority of event-driven systems, messages COULD be published without a specific order
-and additionally, messages COULD be published more than one time _(aka. At-least one delivery)_.
+and additionally, messages COULD be published more than one time _(caused by At-least one message delivery)_.
 
 Thus, event handlers operations MUST be idempotent. More in deep:
 - When creating an entity/aggregate:
@@ -91,23 +91,23 @@ Dead-Letter Queue (DLQ) so they can be replayed manually after fixes get deploye
 
 #### Dealing with duplication and disordered messages in complex processing
 
-Sometimes, the engineering team might add functionality which adheres perfectly with the nature of events 
-(reacting to change). For example, the product team might require to notify the user when he/she executes a specific operation.
+Sometimes, a business might require functionality which align perfectly with the nature of events 
+(reacting to change). For example, the product team might require to notify the user when he/she executes a 
+specific operation.
 
 In that scenario, using the techniques described before will not be sufficient to deal with the nature of event-driven
 systems (duplication and disorder of messages). Nevertheless, they are still solvable as they only require to do a
-specific action triggered by some event. Thus, duplication is the only topic that affects the system, as it might lead 
-to billing increase (more computing resources used, more network throughput, etc.).
+specific action triggered by some event.
 
-In order to solve this problem, a table named `inbox` (or similar) COULD be used to track message processes already 
-executed in the system (even if it is a cluster of nodes).
+In order to solve duplication of processes, a table named `inbox` (or similar) COULD be used to track message processes 
+already executed in the system (even if it is a cluster of nodes).
 More in deep:
 
 1. Message arrives.
 2. A middleware is called before the actual message process.
    1. The middleware checks if the message was already processed using the message id as key and the table `inbox`.
-   2. If message was already processed, stop the process and acknowledge the arrival of the message.
-   3. If not, continue with the message processing normally.
+      1. If message was already processed, stop the process and acknowledge the arrival of the message.
+      2. If not, continue with the message processing normally.
 3. The message process gets executed.
 4. The middleware will be called again.
    1. If the processing was successful, commit the message process as success in the `inbox` table.
@@ -117,6 +117,26 @@ Finally, one thing to consider while implementing this approach is the necessity
 mechanism, just as the `outbox` table, to keep the table lightweight.
 
 Note: This `inbox` table COULD be implemented anywhere as it does not require transactions or any similar mechanism.
-It is recommended to use an external database to reduce computational overheat from the main database used by business 
-operations. An in-memory database such as Redis _(which also has built-in TTL)_ or even Amazon DynamoDB or Apache Cassandra (distributed databases) as 
-they handle massive read operations efficiently.
+It is recommended to use an external database to reduce computational overhead from the main database used by business 
+operations. An in-memory database such as Redis _(which also has built-in TTL)_ or even Amazon DynamoDB/Apache Cassandra 
+(distributed databases) are one of the best choices as they handle massive read operations efficiently.
+
+In the other hand, if disordered processing is a serious problem for the business, the development team might take advantage
+of the previous described approach for duplication of processes adhering workarounds such as the usage of timestamps or 
+even deltas to distinct the order of the processes. Getting deeper:
+
+1. Message arrives.
+2. A middleware `duplication` is called before the actual message process.
+   1. The middleware checks if the process was already processed.
+      1. If already processed, stop the process and acknowledge the message.
+3. A middleware `disorder` is called before the actual message process.
+   1. The middleware verifies if the previous process was already processed using the `correlation_id` and 
+   `timestamp/delta` properties.
+      1. If not, return an error and do not acknowledge the message, so it can be retried again after a backoff.
+      2. If previous process was already executed, continue with the message processing normally.
+4. The message process gets executed.
+5. The middleware `duplication` will be called again.
+    1. If the processing was successful, commit the message process as success in the `inbox` table.
+6. If processing failed, do not acknowledge the message arrival, so it can be retried.
+
+For more information about this last approach, please read [this article about correlation and causation IDs](https://blog.arkency.com/correlation-id-and-causation-id-in-evented-systems/).
