@@ -60,6 +60,8 @@ Using the Time-To-Live (TTL) mechanism, batches of messages stored in the `outbo
 a specific time defined by the developer _(for this example, default is 1 day)_. If Amazon DynamoDB is not an option,
 a TTL mechanism MUST be implemented manually to keep the `outbox` table lightweight.
 
+An open source alternative is `Apache Cassandra` which based most of its initial implementation from cloud-native solutions such as `Amazon DynamoDB` and `Google BigQuery`. It also has TTL mechanisms out the box.
+
 Furthermore, the defined time for a record to be removed opens the possibility to replay batches of messages generated within transactions.
 
 ### Common issues with Event-Driven systems
